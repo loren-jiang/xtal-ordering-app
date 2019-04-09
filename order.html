@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <base target="_top">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <script>
+         function financial(x) {
+            return Number.parseFloat(x).toFixed(2);
+         }
+
+         function highlightSelected(obj) {
+         if (obj.options.selectedIndex > 0) {
+            document.getElementById(obj.name).style.backgroundColor = "#41f4c4";
+         }
+         else {
+            document.getElementById(obj.name).style.backgroundColor = "white";
+         }
+         }
+         var values = '<?= qsValues ?>';
+         
+         values = JSON.parse(values);
+         function updateOrder() {
+         var parent = document.getElementsByClassName('screenQty');
+         var popupOrder = '<table border=1> <tr> <th> Item SKU </th> <th> Qty </th> <th> Price </th> <th> Total Price </th> </tr>';
+         var orderTotal = 0;
+         for (var i=0; i< parent.length; i++) {
+         sku = parent[i].name;
+         opt = parent[i].options[parent[i].options.selectedIndex];
+         
+         if (opt.value != 0) {
+         //           document.getElementById(sku).style.backgroundColor = "#41f4c4";
+           p = getDataBySKU(sku, ['Price'])[0];
+           qty = opt.value;
+           total = qty*p;
+           orderTotal += total;
+           popupOrder += '<tr>' + '<td>' + sku + '</td>' + '<td>' + qty.toString() + '</td>' 
+           + '<td>' + '$' + financial(p).toString() + '</td>' 
+           + '<td>' + '$' + financial(total).toString() + '</td>' + '</tr>';
+           }
+         }
+         popupOrder += '<tr> <th></th> <th></th> <th>Order Total</th> ' + '<th>' + '$' + financial(orderTotal).toString() + '</th> </tr> </table>';
+         document.getElementById('orderData').innerHTML = popupOrder;
+         window.emailBody = popupOrder;
+         }
+         // When the user clicks View Order, open the popup
+         function submitOrder() {
+         toggleOrder();
+         updateOrder();
+         }
+         
+         function toggleOrder() {
+         var x = document.getElementById("orderConfirm");
+         if (x.style.display === "none") {
+            x.style.display = "block";
+         } else {
+            x.style.display = "none";
+         }
+         }
+         function getDataBySKU(sku,dataWanted) {
+         var skuIdx = values[0].indexOf('SKU');
+         var data = [];
+         for (var m = 1; m < values.length; m++) {
+         
+         rowData = values[m];
+         if (rowData[skuIdx] == sku) {
+         for (var k = 0; k <dataWanted.length; k++) {
+         
+         idx = values[0].indexOf(dataWanted[k]);
+         
+         data.push(rowData[idx]);
+         
+         }
+         break;
+         }
+         }
+         return data;
+         }
+         
+      </script>
+   </head>
+   <body>
+      <div class ='container-fluid' id='Title'>
+         <h1>UCSF Xtal Facility Screen Order</h1>
+         <br>
+         <p align="center"> Author: Loren Jiang <br> <b>Email xray@msg.ucsf.edu to report a bug OR request a screen not in stock</b> <br><i>(such requests will 
+            usually be fulfilled in 5-7 business days, depending on shipping times)</i> 
+         </p>
+      </div>
+      <form id="myform">
+         <div id='userInfo' class='container-fluid'>
+            <p>
+               Name:
+               <input name="userName" type="text" > 
+            </p>
+            <p>
+               Email:
+               <input name="Email" type="text" id='email' >
+            </p>
+            <p>
+               Lab Group:
+               <input name="Lab" type='text' list="groups" />
+               <datalist id="groups"></datalist>
+            </p>
+         </div>
+         <br>
+         <div class ='container-fluid' id='pageNavTop'>
+            <b>Page navigation: </b>
+            <a id='goToCheckout'>Go to checkout</a> |
+            <a id='goHanging'>Hanging drop screens</a> | 
+            <a id='goSitting'>Sitting drop screen</a> 
+         </div>
+         <div class ='container-fluid' id='hangingContainer'>
+            <h2>Hanging Drop Screens</h2>
+            <div id='hanging' > 
+            </div>
+         </div>
+         <div class ='container-fluid' id='sittingContainer'>
+            <h2>Sitting Drop Screens</h2>
+            <div id='sitting' >
+            </div>
+         </div>
+         <br/>
+         <div class ='container-fluid' id='orderContainer'>
+            <button id='viewOrder' type="button" >Checkout</button>
+            <div style='display:none' id="orderConfirm" align="center">
+               <br><b>Order confirmation </b>
+               <div id="orderData"> </div>
+               <br> 
+               <textarea rows="4" cols="50" name="comment" form="myform" placeholder='Comments or questions?'></textarea>
+               <br>
+               <input type="button" value="Submit order" id="btnsubmit">
+               <input type="button" value="Update order" onclick="updateOrder()">
+            </div>
+         </div>
+         
+         <p style="margin-bottom: 100px"> </p>
+      </form>
+      <?!= getContent("myscript.js") ?>
+      <?!= getContent("mycss") ?>
+      <script>
+         $(document).ready(function(){
+         
+            document.getElementById('viewOrder').onclick = function() {
+            this.scrollIntoView();
+            submitOrder();
+            };
+            document.getElementById("goToCheckout").addEventListener("click", function scrollTo() {
+            var elmnt = document.getElementById("viewOrder");
+            elmnt.scrollIntoView();
+            }, false);
+            
+            document.getElementById("goHanging").addEventListener("click", function scrollTo() {
+            var elmnt = document.getElementById("hangingContainer");
+            elmnt.scrollIntoView();
+            }, false);
+            
+            document.getElementById("goSitting").addEventListener("click", function scrollTo() {
+            var elmnt = document.getElementById("sittingContainer");
+            elmnt.scrollIntoView();
+            }, false);
+            });
+      </script>
+      <script>
+         $(document).ready(function(){
+            var groupValues = '<?= qsGroupValues ?>';
+            var groupArr = JSON.parse(groupValues);
+            var options = '';
+            for(var i = 1; i < groupArr.length; i++)
+               options += '<option value="'+groupArr[i]+'" />';
+         
+            document.getElementById('groups').innerHTML = options;
+         });
+      </script>
+      <script>
+         $(document).ready(function(){
+         var values = '<?= qsValues ?>';
+         
+           values = JSON.parse(values);
+           var header = values[0];
+           console.log(header);
+           var dateIdx = header.indexOf('Date dispensed');
+           var plateFormatIdx = header.indexOf('Plate format');
+           var URLIdx = header.indexOf('URL');
+           var priceIdx = header.indexOf('Price');
+           var itemIdx = header.indexOf('Item');
+           var hangingDrop = [header];
+           var sittingDrop = [header];
+           
+           for (var k = 1 ; k < values.length; k++) {
+             row = values[k];
+             row[itemIdx] = '<b>' + row[itemIdx] + '</b>';
+             row[priceIdx] = '$' + row[priceIdx].toFixed(2);
+             row[URLIdx] = '<a target="_blank" href="' + row[URLIdx] + '">' + "Product link" + '</a>'; 
+             row[dateIdx] = cleanDate(values[k][dateIdx]); //takes substring of date string
+             if (row[plateFormatIdx] == 'Hanging') {
+                hangingDrop.push(row);
+             }
+             if (row[plateFormatIdx] == 'Sitting') {
+                sittingDrop.push(row);
+             }
+           }
+           
+          
+             function createDropdown(n,sku) {
+               
+         
+               var ret = "<select form='myform' onchange='highlightSelected(this)' class ='screenQty' name=" + sku + ">";
+               for (var k =0; k<=n; k++) {
+                  ret += "<option value='" + k.toString() + "'>" + k.toString() +"</option>";
+               }
+               return ret;
+             }
+             
+             function cleanDate(date) {
+               return date.substr(0,10);
+             }
+             
+             function makeTableHTML(myArray, hiddenCols) {
+             var result = "<table border=1>";
+             var sku = "";
+             for(var j=0; j<myArray[0].length; j++){
+               if (hiddenCols.includes(j)){
+               result += "<th style='display:none;'>"+myArray[0][j]+"</th>";
+               console.log("hiddenCol");
+               }
+               else {
+               result += "<th>"+myArray[0][j]+"</th>";
+               }
+               
+               }
+             result += "<th>"+"Select how many"+"</th>";
+                
+             for(var i=1; i<myArray.length; i++) {
+             sku = myArray[i][myArray[i].length-2];
+             result += '<tr id="' + sku+  '">';
+               for(var j=0; j<myArray[i].length; j++){
+               
+               if (hiddenCols.includes(j)){
+               result += "<td style='display:none;'>"+myArray[i][j]+"</td>";
+               console.log("hiddenCol");
+               }
+               else {
+               result += "<td>"+myArray[i][j]+"</td>";
+               }
+                }
+               
+               result += "<td>"+createDropdown(myArray[i][myArray[i].length-1],sku)+"</td>";
+             result += "</tr>";
+             }
+             result += "</table>";
+             
+             return result;
+             }
+             var sittingTable = makeTableHTML(sittingDrop.map(function(v){ return [v[0],v[3],v[4],v[7],v[17],v[9],v[10],v[2],v[13]] }),[7]); //this is bad lol
+             var hangingTable = makeTableHTML(hangingDrop.map(function(v){ return [v[0],v[3],v[4],v[7],v[17],v[9],v[10],v[2],v[13]] }),[7]);
+         
+             document.getElementById('sitting').innerHTML = sittingTable;
+             document.getElementById('hanging').innerHTML = hangingTable;
+         
+         
+         
+         
+         });
+         
+         
+      </script>
+      <script>
+         $(document).ready(function () {
+         
+             
+             $('#myform').validate({ // initialize the plugin
+         
+                 rules: {
+                     userName: {
+                         required: true,
+                         minlength: 1
+                     },
+                     Email: {
+                         required: true,
+                         email: true
+                     },
+                     Lab: { 
+                         required: true,
+                         minlength: 1
+                     }
+              
+                 }
+                 
+                 
+             });
+             
+             //checks if user ordered at least 1 screen; arr --> serialized array from form
+             function atLeastOne() {
+               var screenSKUs = $(".screenQty").toArray();
+               var sum = 0;
+               for (var k =0; k<screenSKUs.length;k++) {
+                  thing = screenSKUs[k];
+                  opt = thing.options[thing.options.selectedIndex]
+                  sum+= opt.value;         
+               }
+               if (sum != 0){
+                  return true;
+               }
+               else {
+                  alert('Select at least one screen!');
+                  return false;
+               }
+             }
+             $("#btnsubmit").on('click', function(e) {
+                 
+                 var isvalid = $("#myform").valid() && atLeastOne();
+                 e.preventDefault();
+                 if (isvalid) {
+                     
+                     alert('Thank you for your order. Typical turnaround time is 1-2 business days.');
+                     google.script.run.processForm($("#myform").serializeArray(), window.emailBody);
+         //                     location.reload();
+                     $('#myform').each (function(){ this.reset()});;
+                     document.getElementById("orderConfirm").style.display = 'none';
+                 }
+                 
+                 document.documentElement.scrollTop = 0; //scroll to top so user can see error
+                 
+                 
+             });
+         
+         
+         });
+      </script>
+   </body>
+</html>
