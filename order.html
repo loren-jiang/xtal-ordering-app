@@ -2,9 +2,10 @@
 <html>
    <head>
       <base target="_top">
-      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+      <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <script>
@@ -219,8 +220,8 @@
                return date.substr(0,10);
              }
              
-             function makeTableHTML(myArray, hiddenCols) {
-             var result = "<table border=1>";
+             function makeTableHTML(myArray, hiddenCols, tableId) {
+             var result = "<table class='table table-bordered' id=" + "'" + tableId + "'" + ">";
              var sku = "";
              for(var j=0; j<myArray[0].length; j++){
                if (hiddenCols.includes(j)){
@@ -228,7 +229,7 @@
                console.log("hiddenCol");
                }
                else {
-               result += "<th>"+myArray[0][j]+"</th>";
+               result += "<th onclick='sortTable(" + j.toString() + "," + "\"" + tableId + "\"" + ")' >" +myArray[0][j]+"</th>";
                }
                
                }
@@ -255,8 +256,14 @@
              
              return result;
              }
-             var sittingTable = makeTableHTML(sittingDrop.map(function(v){ return [v[0],v[3],v[4],v[7],v[17],v[9],v[10],v[2],v[13]] }),[7]); //this is bad lol
-             var hangingTable = makeTableHTML(hangingDrop.map(function(v){ return [v[0],v[3],v[4],v[7],v[17],v[9],v[10],v[2],v[13]] }),[7]);
+             var sittingTable = makeTableHTML(
+                 sittingDrop.map(function(v){ return [v[0],v[3],v[4],v[7],v[17],v[9],v[10],v[2],v[13]] }),
+                 [7],
+                 "sittingTable"); //this is bad lol
+             var hangingTable = makeTableHTML(
+                 hangingDrop.map(function(v){ return [v[0],v[3],v[4],v[7],v[17],v[9],v[10],v[2],v[13]] }),
+                 [7],
+                 "hangingTable");
          
              document.getElementById('sitting').innerHTML = sittingTable;
              document.getElementById('hanging').innerHTML = hangingTable;
@@ -330,6 +337,64 @@
          
          
          });
+      </script>
+      
+      <script>
+      function sortTable(n, tableId) {
+      var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+      table = document.getElementById(tableId);
+      console.log(table);
+      switching = true;
+      // Set the sorting direction to ascending:
+      dir = "asc"; 
+      /* Make a loop that will continue until
+      no switching has been done: */
+      while (switching) {
+      // Start by saying: no switching is done:
+      switching = false;
+      rows = table.rows;
+      /* Loop through all table rows (except the
+      first, which contains table headers): */
+      for (i = 1; i < (rows.length - 1); i++) {
+      // Start by saying there should be no switching:
+      shouldSwitch = false;
+      /* Get the two elements you want to compare,
+      one from current row and one from the next: */
+      x = rows[i].getElementsByTagName("TD")[n];
+      y = rows[i + 1].getElementsByTagName("TD")[n];
+      /* Check if the two rows should switch place,
+      based on the direction, asc or desc: */
+      if (dir == "asc") {
+      if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+      // If so, mark as a switch and break the loop:
+      shouldSwitch = true;
+      break;
+      }
+      } else if (dir == "desc") {
+      if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+      // If so, mark as a switch and break the loop:
+      shouldSwitch = true;
+      break;
+      }
+      }
+      }
+      if (shouldSwitch) {
+      /* If a switch has been marked, make the switch
+      and mark that a switch has been done: */
+      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      switching = true;
+      // Each time a switch is done, increase this count by 1:
+      switchcount ++; 
+      } else {
+      /* If no switching has been done AND the direction is "asc",
+      set the direction to "desc" and run the while loop again. */
+      if (switchcount == 0 && dir == "asc") {
+      dir = "desc";
+      switching = true;
+      }
+      }
+      }
+      }
       </script>
    </body>
 </html>
