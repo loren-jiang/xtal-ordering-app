@@ -203,6 +203,14 @@ function getContent(filename) {
     return HtmlService.createTemplateFromFile(filename).getRawContent();
 }
 
+/**
+ * Get the URL for the Google Apps Script running as a WebApp.
+ */
+function getScriptUrl() {
+ var url = ScriptApp.getService().getUrl();
+ return url;
+}
+
 function doGet(e) {
   var ssGroups = SpreadsheetApp.openById('1Yom-H6j04TJ5_W1Ic2dlqKsVWrHQbdInQyq_Q7ZVnZA'); //get spreadsheet of groups
   var shGroups = ssGroups.getSheetByName('Groups');
@@ -212,6 +220,8 @@ function doGet(e) {
   
   var ss = SpreadsheetApp.getActive(); //get active spreadsheet
   var sh = ss.getSheetByName('sortedInventory');
+  var sh_completed_orders = ss.getSheetByName('completedOrders');
+  
   var lastRow = sh.getLastRow();
   var lastCol = sh.getLastColumn(); 
   var m = [1,1,lastRow,lastCol];
@@ -220,15 +230,24 @@ function doGet(e) {
 
   var out = readSheetValue(sh,m);
   var range = out[0], values = out[1];
+  var completed_orders = readSheetValue(sh_completed_orders, 
+                                        [1,1,sh_completed_orders.getLastRow(), sh_completed_orders.getLastColumn()]
+                                       )[1];
   
-  var htmlTemplate = HtmlService.createTemplateFromFile('order');
+  var htmlTemplate_order = HtmlService.createTemplateFromFile('order');
 
-  htmlTemplate.qsGroupValues = JSON.stringify(groupValues); 
-  htmlTemplate.qsValues = JSON.stringify(values);
-  
-  var htmlOutput = htmlTemplate.evaluate().setSandboxMode(HtmlService.SandboxMode.IFRAME);
-
-  return htmlOutput;
+  htmlTemplate_order.qsGroupValues = JSON.stringify(groupValues); 
+  htmlTemplate_order.qsValues = JSON.stringify(values);
+//  htmlTemplate_order.qsCompletedOrders = JSON.stringify(completed_orders);
+  if (!e.parameter.page) {
+    // When no specific page requested, return "home page"
+    return htmlTemplate_order.evaluate();
+  }
+  else {
+    var htmlTemplate =  HtmlService.createTemplateFromFile(e.parameter['page']);
+    htmlTemplate.qsCompletedOrders = JSON.stringify(completed_orders);
+    return htmlTemplate.evaluate();
+  }
 }
 
 // Utility function to fetch key values from query string

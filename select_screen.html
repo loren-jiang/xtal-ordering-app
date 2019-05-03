@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <base target="_top">
+        
+  </head>
+  <body>
+  <?!= getContent("myscript.js") ?>
+  <?!= getContent("mycss") ?>
+  <div class ='container-fluid' id='Title'>
+  <br>
+  <br>
+  <h1>Resources for picking screen(s)</h1>
+  <br>
+  </div>
+  
+  <div align="center" id="piechart"></div>
+  
+  <div class ='container-fluid' id='resources'>
+  <row>
+  <b>External resources:</b>
+  <ul>
+  <li><a target="_blank" href="https://hamptonresearch.com/documents/growth_101/36.pdf">Crystallization Screening Guide from Hampton Research </a></li>
+  <li><a target="_blank" href="https://c6.csiro.au/">C6 - Comparison of Crystallisation Conditions @ C3</a></li>
+  </ul>
+  </row>
+  </div>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  
+  <script type="text/javascript">
+  $(document).ready(function(){
+  var completed_orders = '<?= qsCompletedOrders ?>';
+  var orders_parsed = JSON.parse(completed_orders);
+//  console.log(orders_parsed);
+  
+  // Load google charts
+  google.charts.load('current', {'packages':['corechart']});
+  google.charts.setOnLoadCallback(drawChart);
+  
+  // counts the number of occurences of elements in array
+  function freqElemInArr(arr) {
+  var a = [], b = [], prev;
+  
+  arr.sort();
+  for ( var i = 0; i < arr.length; i++ ) {
+  if ( arr[i] !== prev ) {
+  a.push(arr[i]);
+  b.push(1);
+  } else {
+  b[b.length-1]++;
+  }
+  prev = arr[i];
+  }
+  var c = a.map(function(e, i) {
+  return [e, b[i]];
+  });
+  return c;
+  }
+  
+  var SKUs = orders_parsed.map(function(value,index) { return value[0]; });
+  
+  // filter out SKUs with length < 4
+  var SKUs_filt = SKUs.filter(string => string.length > 3);
+  //split and get first elem for screen name
+  SKUs_filt = SKUs_filt.map(string => string.split("_")[0].trim());
+  
+  var SKUs_freq = freqElemInArr(SKUs_filt);
+  SKUs_freq.unshift(["Screen","Freq"]);
+//  console.log(SKUs_freq);
+  // Draw the chart and set the chart values
+  function drawChart() {
+  console.log(SKUs_freq);
+  var data = google.visualization.arrayToDataTable(SKUs_freq);
+  
+  // Optional; add a title and set the width and height of the chart
+  var options = {'title':'Popular Screens at UCSF', 'width':800, 'height':800};
+  
+  // Display the chart inside the <div> element with id="piechart"
+  var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+  chart.draw(data, options);
+//  chart.draw(data);
+  }
+  
+  });
+  </script>
+
+  </body>
+</html>
+
+
