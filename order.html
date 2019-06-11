@@ -24,14 +24,16 @@
          var values = '<?= qsValues ?>';
          
          values = JSON.parse(values);
+         
          function updateOrder() {
+         
          var parent = document.getElementsByClassName('screenQty');
          var popupOrder = '<table border=1> <tr> <th> Item SKU </th> <th> Qty </th> <th> Price </th> <th> Total Price </th> </tr>';
          var orderTotal = 0;
          for (var i=0; i< parent.length; i++) {
          sku = parent[i].name;
          opt = parent[i].options[parent[i].options.selectedIndex];
-         
+//         console.log(opt);
          if (opt.value != 0) {
          //           document.getElementById(sku).style.backgroundColor = "#41f4c4";
            p = getDataBySKU(sku, ['Price'])[0];
@@ -46,7 +48,9 @@
          popupOrder += '<tr> <th></th> <th></th> <th>Order Total</th> ' + '<th>' + '$' + financial(orderTotal).toString() + '</th> </tr> </table>';
          document.getElementById('orderData').innerHTML = popupOrder;
          window.emailBody = popupOrder;
+         
          }
+         
          // When the user clicks View Order, open the popup
          function submitOrder() {
          toggleOrder();
@@ -87,31 +91,43 @@
    <br>
    <br>
       <div class ='container-fluid' id='Title'>
-         <h1>UCSF Xtal Facility Screen Order</h1>
-         <br>
-         <p align="center"> Author: Loren Jiang <br> <b>Email xray@msg.ucsf.edu to report a bug OR request a screen not in stock</b> <br><i>(such requests will 
-            usually be fulfilled in 5-7 business days, depending on shipping times)</i> 
-         </p>
-         <br>
-         <p align="center">
-           <?var url = getScriptUrl();?><a target="_blank" href='<?=url?>?page=select_screen'> Tips on picking which screen(s)</a>
-         </p>
+         <div class="row">
+           <div class="col-8 mx-auto">
+              <h1>UCSF Xtal Facility Screen Order</h1>
+              <br>
+              <p align="center"> Author: Loren Jiang <br> <b>Email xray@msg.ucsf.edu to report a bug OR request a screen not in stock</b> <br><i>(such requests will 
+              usually be fulfilled in 5-7 business days, depending on shipping times)</i> 
+              </p>
+              <p align="center"> 
+              Click on the "DWB" tab below to see which screens we have in deep well block format. If you would like to order a screen not listed in either 
+              DWB or hanging/sitting format please email address above.
+              </p>
+              <br>
+              <p align="center">
+              <?var url = getScriptUrl();?><a target="_blank" href='<?=url?>?page=select_screen'> Tips on picking which screen(s)</a>
+              </p>
+           </div>
+         </div>
       </div>
       <form id="myform" onsubmit="window.location.reload()">
          <div id='userInfo' class='container-fluid'>
-            <p>
+           <div class="row">
+              <div class="col-8 mx-auto">
+               <p>
                Name:
-               <input name="userName" type="text" > 
-            </p>
-            <p>
+                  <input name="userName" type="text" > 
+               </p>
+               <p>
                Email:
-               <input name="Email" type="text" id='email' >
-            </p>
-            <p>
+                  <input name="Email" type="text" id='email' >
+               </p>
+               <p>
                Lab Group:
-               <input name="Lab" type='text' list="groups" />
-               <datalist id="groups"></datalist>
-            </p>
+                  <input name="Lab" type='text' list="groups" />
+                  <datalist id="groups"></datalist>
+               </p>
+               </div>
+            </div>
          </div>
          <br>
          <br>
@@ -123,6 +139,9 @@
          </li>
          <li class="nav-item">
          <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Sitting Drop</a>
+         </li>
+         <li class="nav-item">
+         <a class="nav-link" id="pills-dwb-tab" data-toggle="pill" href="#pills-dwb" role="tab" aria-controls="pills-dwb" aria-selected="false">DWB</a>
          </li>
          <li class="nav-item">
          <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-contact" role="tab" aria-controls="pills-contact" aria-selected="false" onclick="updateOrder()">Checkout</a>
@@ -141,6 +160,14 @@
          <div class ='container-fluid' id='sittingContainer'>
             <h2>Sitting Drop Screens</h2>
             <div id='sitting' >
+            </div>
+         </div>
+         </div>
+         
+         <div class="tab-pane fade" id="pills-dwb" role="tabpanel" aria-labelledby="pills-dwb-tab">
+         <div class ='container-fluid' id='dwbContainer'>
+            <h2>Deep Well Block</h2>
+            <div id='dwb' >
             </div>
          </div>
          </div>
@@ -227,7 +254,7 @@
          
            values = JSON.parse(values);
            var header = values[0];
-           console.log(header);
+//           console.log(header);
            var dateIdx = header.indexOf('Date dispensed');
            var plateFormatIdx = header.indexOf('Plate format');
            var URLIdx = header.indexOf('URL');
@@ -235,6 +262,7 @@
            var itemIdx = header.indexOf('Item');
            var hangingDrop = [header];
            var sittingDrop = [header];
+           var dwb = [header];
            
            for (var k = 1 ; k < values.length; k++) {
              row = values[k];
@@ -247,6 +275,9 @@
              }
              if (row[plateFormatIdx] == 'Sitting') {
                 sittingDrop.push(row);
+             }
+             if (row[plateFormatIdx] == 'DWB') {
+                dwb.push(row);
              }
            }
            
@@ -264,6 +295,7 @@
              function cleanDate(date) {
                return date.substr(0,10);
              }
+             
              
              function makeTableHTML(myArray, hiddenCols, tableId) {
              var result = "<table class='table table-bordered' id=" + "'" + tableId + "'" + ">";
@@ -301,25 +333,26 @@
              
              return result;
              }
+             
+             
              var sittingTable = makeTableHTML(
                  sittingDrop.map(function(v){ return [v[0],v[3],v[4],v[7],v[17],v[9],v[10],v[2],v[13]] }),
                  [7],
                  "sittingTable"); //this is bad lol
+                 
              var hangingTable = makeTableHTML(
                  hangingDrop.map(function(v){ return [v[0],v[3],v[4],v[7],v[17],v[9],v[10],v[2],v[13]] }),
                  [7],
                  "hangingTable");
-         
-             document.getElementById('sitting').innerHTML = sittingTable;
-             document.getElementById('hanging').innerHTML = hangingTable;
-         
-         
-         
-         
-         });
-         
+                 
+             var dwbTable = makeTableHTML(dwb.map(function(v){ return [v[0], v[2], v[13]] }), [],"dwbTable");
+            
+             //add table to appropriate div
+             document.getElementById('hanging').innerHTML = hangingTable; document.getElementById('sitting').innerHTML=sittingTable; document.getElementById('dwb').innerHTML=dwbTable;
+             });
          
       </script>
+      
       <script>
          $(document).ready(function () {
          
