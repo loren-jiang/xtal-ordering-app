@@ -180,9 +180,6 @@ function processForm(formArr, emailBody) {
   +'<p> Please see order summary below: </p> </br>' + emailBody;
   emailOrderConfirmation(Email +',' + 'xray@msg.ucsf.edu',subject,emailBody);
   
-
-  
-  
 }
 function setSheetValue(ssName, A1, value){
   var ss = SpreadsheetApp.getActive(); //get active spreadsheet

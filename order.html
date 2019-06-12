@@ -13,12 +13,20 @@
             return Number.parseFloat(x).toFixed(2);
          }
 
+//         function highlightSelected(obj) {
+//         if (obj.options.selectedIndex > 0) {
+//            document.getElementById(obj.name).style.backgroundColor = "#0008ff40";
+//         }
+//         else {
+//            document.getElementById(obj.name).style.backgroundColor = "white";
+//         }
+//         }
          function highlightSelected(obj) {
          if (obj.options.selectedIndex > 0) {
-            document.getElementById(obj.name).style.backgroundColor = "#0008ff40";
+            obj.parentElement.parentElement.style.backgroundColor = "#0008ff40";
          }
          else {
-            document.getElementById(obj.name).style.backgroundColor = "white";
+            obj.parentElement.parentElement.style.backgroundColor = "white";
          }
          }
          var values = '<?= qsValues ?>';
@@ -280,7 +288,7 @@
                 dwb.push(row);
              }
            }
-           
+           console.log(dwb);
           
              function createDropdown(n,sku) {
                
@@ -303,14 +311,18 @@
              for(var j=0; j<myArray[0].length; j++){
                if (hiddenCols.includes(j)){
                result += "<th style='display:none;'>"+myArray[0][j]+"</th>";
-               console.log("hiddenCol");
+//               console.log("hiddenCol");
                }
                else {
                result += "<th onclick='sortTable(" + j.toString() + "," + "\"" + tableId + "\"" + ")' >" +myArray[0][j]+"</th>";
                }
                
                }
-             result += "<th>"+"Select how many"+"</th>";
+               
+               if (tableId!="dwbTable"){
+                  result += "<th>"+"Select how many"+"</th>";
+               }
+             
                 
              for(var i=1; i<myArray.length; i++) {
              sku = myArray[i][myArray[i].length-2];
@@ -319,21 +331,41 @@
                
                if (hiddenCols.includes(j)){
                result += "<td style='display:none;'>"+myArray[i][j]+"</td>";
-               console.log("hiddenCol");
+//               console.log("hiddenCol");
                }
                else {
-               result += "<td>"+myArray[i][j]+"</td>";
+                  result += "<td>"+myArray[i][j]+"</td>";
                }
                 }
                
-               result += "<td>"+createDropdown(myArray[i][myArray[i].length-1],sku)+"</td>";
+               if (tableId!="dwbTable"){
+                  result += "<td>"+createDropdown(myArray[i][myArray[i].length-1],sku)+"</td>";
+               }
+               
              result += "</tr>";
              }
              result += "</table>";
              
              return result;
              }
-             
+//             0: "Item"
+//             1: "Category"
+//             2: "SKU"
+//             3: "Vendor"
+//             4: "Plate type"
+//             5: "Plate format"
+//             6: "Volume"
+//             7: "Description"
+//             8: "Price (USD)"
+//             9: "URL"
+//             10: "Date dispensed"
+//             11: "Lot code"
+//             12: "In inventory?"
+//             13: "Amt in stock"
+//             14: "Restock?"
+//             15: "Days old"
+//             16: "Percent off"
+//             17: "Price"
              
              var sittingTable = makeTableHTML(
                  sittingDrop.map(function(v){ return [v[0],v[3],v[4],v[7],v[17],v[9],v[10],v[2],v[13]] }),
@@ -344,11 +376,13 @@
                  hangingDrop.map(function(v){ return [v[0],v[3],v[4],v[7],v[17],v[9],v[10],v[2],v[13]] }),
                  [7],
                  "hangingTable");
-                 
-             var dwbTable = makeTableHTML(dwb.map(function(v){ return [v[0], v[2], v[13]] }), [],"dwbTable");
+             console.log(dwb.map(function(v){ return [v[0], v[7],v[2], v[13]] }));
+             var dwbTable = makeTableHTML(dwb.map(function(v){ return [v[0], v[3],v[7],v[2], v[13]] }), [2,3],"dwbTable");
             
              //add table to appropriate div
-             document.getElementById('hanging').innerHTML = hangingTable; document.getElementById('sitting').innerHTML=sittingTable; document.getElementById('dwb').innerHTML=dwbTable;
+             document.getElementById('hanging').innerHTML = hangingTable; 
+             document.getElementById('sitting').innerHTML=sittingTable; 
+             document.getElementById('dwb').innerHTML=dwbTable;
              });
          
       </script>
@@ -400,12 +434,13 @@
                  var isvalid = $("#myform").valid() && atLeastOne();
                  e.preventDefault();
                  if (isvalid) {
-                     
+//                     console.log($(".screenQty"));
+                     $(".screenQty").each(function () {this.parentElement.parentElement.style.backgroundColor = "white"; } );
                      alert('Thank you for your order. Typical turnaround time is 1-2 business days.');
                      google.script.run.processForm($("#myform").serializeArray(), window.emailBody);
          //                     location.reload();
                      $('#myform').each (function(){ this.reset()});;
-                     document.getElementById("orderConfirm").style.display = 'none';
+//                     document.getElementById("orderConfirm").style.display = 'none';
                  }
                  
                  document.documentElement.scrollTop = 0; //scroll to top so user can see error
