@@ -1,513 +1,500 @@
 <!DOCTYPE html>
 <html>
-   <head>
-      <base target="_top">
-      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-      <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <script>
-         function financial(x) {
-            return Number.parseFloat(x).toFixed(2);
-         }
 
-//         function highlightSelected(obj) {
-//         if (obj.options.selectedIndex > 0) {
-//            document.getElementById(obj.name).style.backgroundColor = "#0008ff40";
-//         }
-//         else {
-//            document.getElementById(obj.name).style.backgroundColor = "white";
-//         }
-//         }
-         function highlightSelected(obj) {
-         if (obj.options.selectedIndex > 0) {
-            obj.parentElement.parentElement.style.backgroundColor = "#0008ff40";
-         }
-         else {
-            obj.parentElement.parentElement.style.backgroundColor = "white";
-         }
-         }
-         var values = '<?= qsValues ?>';
-         
-         values = JSON.parse(values);
-         
-         function updateOrder() {
-         
-         var parent = document.getElementsByClassName('screenQty');
-         var popupOrder = '<table border=1> <tr> <th> Item SKU </th> <th> Qty </th> <th> Price </th> <th> Total Price </th> </tr>';
-         var orderTotal = 0;
-         for (var i=0; i< parent.length; i++) {
-         sku = parent[i].name;
-         opt = parent[i].options[parent[i].options.selectedIndex];
-//         console.log(opt);
-         if (opt.value != 0) {
-         //           document.getElementById(sku).style.backgroundColor = "#41f4c4";
-           p = getDataBySKU(sku, ['Price'])[0];
-           qty = opt.value;
-           total = qty*p;
-           orderTotal += total;
-           popupOrder += '<tr>' + '<td>' + sku + '</td>' + '<td>' + qty.toString() + '</td>' 
-           + '<td>' + '$' + financial(p).toString() + '</td>' 
-           + '<td>' + '$' + financial(total).toString() + '</td>' + '</tr>';
-           }
-         }
-         popupOrder += '<tr> <th></th> <th></th> <th>Order Total</th> ' + '<th>' + '$' + financial(orderTotal).toString() + '</th> </tr> </table>';
-         document.getElementById('orderData').innerHTML = popupOrder;
-         window.emailBody = popupOrder;
-         
-         }
-         
-         // When the user clicks View Order, open the popup
-         function submitOrder() {
-         toggleOrder();
-         updateOrder();
-         }
-         
-         function toggleOrder() {
-         var x = document.getElementById("orderConfirm");
-         if (x.style.display === "none") {
-            x.style.display = "block";
-         } else {
-            x.style.display = "none";
-         }
-         }
-         function getDataBySKU(sku,dataWanted) {
-         var skuIdx = values[0].indexOf('SKU');
-         var data = [];
-         for (var m = 1; m < values.length; m++) {
-         
-         rowData = values[m];
-         if (rowData[skuIdx] == sku) {
-         for (var k = 0; k <dataWanted.length; k++) {
-         
-         idx = values[0].indexOf(dataWanted[k]);
-         
-         data.push(rowData[idx]);
-         
-         }
-         break;
-         }
-         }
-         return data;
-         }
-         
-      </script>
-   </head>
-   <body>
-   <br>
-   <br>
-      <div class ='container-fluid' id='Title'>
-         <div class="row">
-           <div class="col-8 mx-auto">
-              <h1>UCSF Xtal Facility Screen Order</h1>
-              <br>
-              <p align="center"> Author: Loren Jiang <br> <b>Email xray@msg.ucsf.edu to report a bug OR request a screen not in stock</b> <br><i>(such requests will 
-              usually be fulfilled in 5-7 business days, depending on shipping times)</i> 
-              </p>
-              <p align="center"> 
-              Click on the "DWB" tab below to see which screens we have in deep well block format. If you would like to order a screen not listed in either 
-              DWB or hanging/sitting format please email address above.
-              </p>
-              <br>
-              <p align="center">
-              <?var url = getScriptUrl();?><a target="_blank" href='<?=url?>?page=select_screen'> Tips on picking which screen(s)</a>
-              </p>
-           </div>
-         </div>
-      </div>
-      <form id="myform" onsubmit="window.location.reload()">
-         <div id='userInfo' class='container-fluid'>
-           <div class="row">
-              <div class="col-8 mx-auto">
-               <p>
-               Name:
-                  <input name="userName" type="text" > 
-               </p>
-               <p>
-               Email:
-                  <input name="Email" type="text" id='email' >
-               </p>
-               <p>
-               Lab Group:
-                  <input name="Lab" type='text' list="groups" />
-                  <datalist id="groups"></datalist>
-               </p>
-               </div>
-            </div>
-         </div>
-         <br>
-         <br>
-         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-         
-         <ul class="nav nav-pills mb-3 justify-content-center" id="pills-tab" role="tablist">
-         <li class="nav-item">
-         <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Hanging Drop</a>
-         </li>
-         <li class="nav-item">
-         <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Sitting Drop</a>
-         </li>
-         <li class="nav-item">
-         <a class="nav-link" id="pills-dwb-tab" data-toggle="pill" href="#pills-dwb" role="tab" aria-controls="pills-dwb" aria-selected="false">DWB</a>
-         </li>
-         <li class="nav-item">
-         <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-contact" role="tab" aria-controls="pills-contact" aria-selected="false" onclick="updateOrder()">Checkout</a>
-         </li>
-         </ul>
-         <div class="tab-content" id="pills-tabContent">
-         <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
-         <div class ='container-fluid' id='hangingContainer'>
-            <h2>Hanging Drop Screens</h2>
-            <div id='hanging' > 
-            </div>
-         </div>
-         </div>
-         
-         <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
-         <div class ='container-fluid' id='sittingContainer'>
-            <h2>Sitting Drop Screens</h2>
-            <div id='sitting' >
-            </div>
-         </div>
-         </div>
-         
-         <div class="tab-pane fade" id="pills-dwb" role="tabpanel" aria-labelledby="pills-dwb-tab">
-         <div class ='container-fluid' id='dwbContainer'>
-            <h2>Deep Well Block</h2>
-            <div id='dwb' >
-            </div>
-         </div>
-         </div>
-         
-         <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
-         <div class ='container-fluid' id='orderContainer'>
-            <!--<button id='viewOrder' type="button" >Checkout</button>
-            <div style='display:none' id="orderConfirm" align="center">-->
-            <div id="orderConfirm" align="center">
-               <br><b>Order confirmation </b>
-               <div id="orderData"> </div>
-               <br> 
-               <textarea rows="4" cols="50" name="comment" form="myform" placeholder='Comments or questions?'></textarea>
-               <br>
-               <input type="button" value="Submit order" id="btnsubmit">
-               <!--<input type="button" value="Update order" onclick="updateOrder()">-->
-            </div>
-         </div>
-         </div>
-         
-         </div>
-         
-         <!--<div class ='container-fluid' id='pageNavTop'>
-            <b>Page navigation: </b>
-            <a id='goToCheckout'>Go to checkout</a> |
-            <a id='goHanging'>Hanging drop screens</a> | 
-            <a id='goSitting'>Sitting drop screen</a> 
-         </div>
-         
-         <div class ='container-fluid' id='hangingContainer'>
-            <h2>Hanging Drop Screens</h2>
-            <div id='hanging' > 
-            </div>
-         </div>
-         <div class ='container-fluid' id='sittingContainer'>
-            <h2>Sitting Drop Screens</h2>
-            <div id='sitting' >
-            </div>
-         </div> -->
-         
-         
-         
-         <p style="margin-bottom: 100px"> </p>
-      </form>
-      <?!= getContent("myscript.js") ?>
-      <?!= getContent("mycss") ?>
-      <script>
-         $(document).ready(function(){       
-                 
-//            document.getElementById('viewOrder').onclick = function() {
-//            this.scrollIntoView();
-//            submitOrder();
-//            };
-//            document.getElementById("goToCheckout").addEventListener("click", function scrollTo() {
-//            var elmnt = document.getElementById("viewOrder");
-//            elmnt.scrollIntoView();
-//            }, false);
-//            
-//            document.getElementById("goHanging").addEventListener("click", function scrollTo() {
-//            var elmnt = document.getElementById("hangingContainer");
-//            elmnt.scrollIntoView();
-//            }, false);
-//            
-//            document.getElementById("goSitting").addEventListener("click", function scrollTo() {
-//            var elmnt = document.getElementById("sittingContainer");
-//            elmnt.scrollIntoView();
-//            }, false);
-            });
-      </script>
-      <script>
-         $(document).ready(function(){
-            var groupValues = '<?= qsGroupValues ?>';
-            var groupArr = JSON.parse(groupValues);
-            var options = '';
-            for(var i = 1; i < groupArr.length; i++)
-               options += '<option value="'+groupArr[i]+'" />';
-         
-            document.getElementById('groups').innerHTML = options;
-         });
-      </script>
-      <script>
-         $(document).ready(function(){
-         var values = '<?= qsValues ?>';
-         
-           values = JSON.parse(values);
-           var header = values[0];
-//           console.log(header);
-           var dateIdx = header.indexOf('Date dispensed');
-           var plateFormatIdx = header.indexOf('Plate format');
-           var URLIdx = header.indexOf('URL');
-           var priceIdx = header.indexOf('Price');
-           var itemIdx = header.indexOf('Item');
-           var hangingDrop = [header];
-           var sittingDrop = [header];
-           var dwb = [header];
-           
-           for (var k = 1 ; k < values.length; k++) {
-             row = values[k];
-             row[itemIdx] = '<b>' + row[itemIdx] + '</b>';
-             row[priceIdx] = '$' + row[priceIdx].toFixed(2);
-             row[URLIdx] = '<a target="_blank" href="' + row[URLIdx] + '">' + "Product link" + '</a>'; 
-             row[dateIdx] = cleanDate(values[k][dateIdx]); //takes substring of date string
-             if (row[plateFormatIdx] == 'Hanging') {
-                hangingDrop.push(row);
-             }
-             if (row[plateFormatIdx] == 'Sitting') {
-                sittingDrop.push(row);
-             }
-             if (row[plateFormatIdx] == 'DWB') {
-                dwb.push(row);
-             }
-           }
-           console.log(dwb);
-          
-             function createDropdown(n,sku) {
-               
-         
-               var ret = "<select form='myform' onchange='highlightSelected(this)' class ='screenQty' name=" + sku + ">";
-               for (var k =0; k<=n; k++) {
-                  ret += "<option value='" + k.toString() + "'>" + k.toString() +"</option>";
-               }
-               return ret;
-             }
-             
-             function cleanDate(date) {
-               return date.substr(0,10);
-             }
-             
-             
-             function makeTableHTML(myArray, hiddenCols, tableId) {
-             var result = "<table class='table table-bordered' id=" + "'" + tableId + "'" + ">";
-             var sku = "";
-             for(var j=0; j<myArray[0].length; j++){
-               if (hiddenCols.includes(j)){
-               result += "<th style='display:none;'>"+myArray[0][j]+"</th>";
-//               console.log("hiddenCol");
-               }
-               else {
-               result += "<th onclick='sortTable(" + j.toString() + "," + "\"" + tableId + "\"" + ")' >" +myArray[0][j]+"</th>";
-               }
-               
-               }
-               
-               if (tableId!="dwbTable"){
-                  result += "<th>"+"Select how many"+"</th>";
-               }
-             
-                
-             for(var i=1; i<myArray.length; i++) {
-             sku = myArray[i][myArray[i].length-2];
-             result += '<tr id="' + sku+  '">';
-               for(var j=0; j<myArray[i].length; j++){
-               
-               if (hiddenCols.includes(j)){
-               result += "<td style='display:none;'>"+myArray[i][j]+"</td>";
-//               console.log("hiddenCol");
-               }
-               else {
-                  result += "<td>"+myArray[i][j]+"</td>";
-               }
+<head>
+    <base target="_top">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script>
+        // get values from .gs
+        var values = '<?= qsValues ?>';
+        values = JSON.parse(values);
+        var groupValues = '<?= qsGroupValues ?>';
+        var groupArr = JSON.parse(groupValues);
+
+        //checks if user ordered at least 1 screen; arr --> serialized array from form
+        function atLeastOne() {
+            var screenSKUs = $(".screenQty").toArray();
+            var sum = 0;
+            for (var k = 0; k < screenSKUs.length; k++) {
+                thing = screenSKUs[k];
+                opt = thing.options[thing.options.selectedIndex]
+                sum += opt.value;
+            }
+            if (sum != 0) {
+                return true;
+            } else {
+                alert('Select at least one screen!');
+                return false;
+            }
+        }
+
+        function createDropdown(n, sku) {
+            var ret = "<select form='myform' onchange='highlightSelected(this)' class ='screenQty' name=" + sku + ">";
+            for (var k = 0; k <= n; k++) {
+                ret += "<option value='" + k.toString() + "'>" + k.toString() + "</option>";
+            }
+            return ret;
+        }
+
+        function cleanDate(date) {
+            return date.substr(0, 10);
+        }
+
+        function makeTableHTML(myArray, hiddenCols, tableId) {
+            var result = "<table class='table table-bordered' id=" + "'" + tableId + "'" + ">";
+            var sku = "";
+            for (var j = 0; j < myArray[0].length; j++) {
+                if (hiddenCols.includes(j)) {
+                    result += "<th style='display:none;'>" + myArray[0][j] + "</th>";
+                    //               console.log("hiddenCol");
+                } else {
+                    result += "<th onclick='sortTable(" + j.toString() + "," + "\"" + tableId + "\"" + ")' >" + myArray[0][j] + "</th>";
                 }
-               
-               if (tableId!="dwbTable"){
-                  result += "<td>"+createDropdown(myArray[i][myArray[i].length-1],sku)+"</td>";
-               }
-               
-             result += "</tr>";
-             }
-             result += "</table>";
-             
-             return result;
-             }
-//             0: "Item"
-//             1: "Category"
-//             2: "SKU"
-//             3: "Vendor"
-//             4: "Plate type"
-//             5: "Plate format"
-//             6: "Volume"
-//             7: "Description"
-//             8: "Price (USD)"
-//             9: "URL"
-//             10: "Date dispensed"
-//             11: "Lot code"
-//             12: "In inventory?"
-//             13: "Amt in stock"
-//             14: "Restock?"
-//             15: "Days old"
-//             16: "Percent off"
-//             17: "Price"
-             
-             var sittingTable = makeTableHTML(
-                 sittingDrop.map(function(v){ return [v[0],v[3],v[4],v[7],v[17],v[9],v[10],v[2],v[13]] }),
-                 [7],
-                 "sittingTable"); //this is bad lol
-                 
-             var hangingTable = makeTableHTML(
-                 hangingDrop.map(function(v){ return [v[0],v[3],v[4],v[7],v[17],v[9],v[10],v[2],v[13]] }),
-                 [7],
-                 "hangingTable");
-             console.log(dwb.map(function(v){ return [v[0], v[7],v[2], v[13]] }));
-             var dwbTable = makeTableHTML(dwb.map(function(v){ return [v[0], v[3],v[7],v[2], v[13]] }), [2,3],"dwbTable");
-            
-             //add table to appropriate div
-             document.getElementById('hanging').innerHTML = hangingTable; 
-             document.getElementById('sitting').innerHTML=sittingTable; 
-             document.getElementById('dwb').innerHTML=dwbTable;
-             });
-         
-      </script>
-      
-      <script>
-         $(document).ready(function () {
-         
-             
-             $('#myform').validate({ // initialize the plugin
-         
-                 rules: {
-                     userName: {
-                         required: true,
-                         minlength: 1
-                     },
-                     Email: {
-                         required: true,
-                         email: true
-                     },
-                     Lab: { 
-                         required: true,
-                         minlength: 1
-                     }
-              
-                 }
-                 
-                 
-             });
-             
-             //checks if user ordered at least 1 screen; arr --> serialized array from form
-             function atLeastOne() {
-               var screenSKUs = $(".screenQty").toArray();
-               var sum = 0;
-               for (var k =0; k<screenSKUs.length;k++) {
-                  thing = screenSKUs[k];
-                  opt = thing.options[thing.options.selectedIndex]
-                  sum+= opt.value;         
-               }
-               if (sum != 0){
-                  return true;
-               }
-               else {
-                  alert('Select at least one screen!');
-                  return false;
-               }
-             }
-             $("#btnsubmit").on('click', function(e) {
-                 
-                 var isvalid = $("#myform").valid() && atLeastOne();
-                 e.preventDefault();
-                 if (isvalid) {
-//                     console.log($(".screenQty"));
-                     $(".screenQty").each(function () {this.parentElement.parentElement.style.backgroundColor = "white"; } );
-                     alert('Thank you for your order. Typical turnaround time is 1-2 business days.');
-                     google.script.run.processForm($("#myform").serializeArray(), window.emailBody);
-         //                     location.reload();
-                     $('#myform').each (function(){ this.reset()});;
-//                     document.getElementById("orderConfirm").style.display = 'none';
-                 }
-                 
-                 document.documentElement.scrollTop = 0; //scroll to top so user can see error
-                 
-                 
-             });
-         
-         
-         });
-      </script>
-      
-      <script>
-      function sortTable(n, tableId) {
-      var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-      table = document.getElementById(tableId);
-      console.log(table);
-      switching = true;
-      // Set the sorting direction to ascending:
-      dir = "asc"; 
-      /* Make a loop that will continue until
-      no switching has been done: */
-      while (switching) {
-      // Start by saying: no switching is done:
-      switching = false;
-      rows = table.rows;
-      /* Loop through all table rows (except the
-      first, which contains table headers): */
-      for (i = 1; i < (rows.length - 1); i++) {
-      // Start by saying there should be no switching:
-      shouldSwitch = false;
-      /* Get the two elements you want to compare,
-      one from current row and one from the next: */
-      x = rows[i].getElementsByTagName("TD")[n];
-      y = rows[i + 1].getElementsByTagName("TD")[n];
-      /* Check if the two rows should switch place,
-      based on the direction, asc or desc: */
-      if (dir == "asc") {
-      if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-      // If so, mark as a switch and break the loop:
-      shouldSwitch = true;
-      break;
-      }
-      } else if (dir == "desc") {
-      if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-      // If so, mark as a switch and break the loop:
-      shouldSwitch = true;
-      break;
-      }
-      }
-      }
-      if (shouldSwitch) {
-      /* If a switch has been marked, make the switch
-      and mark that a switch has been done: */
-      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-      switching = true;
-      // Each time a switch is done, increase this count by 1:
-      switchcount ++; 
-      } else {
-      /* If no switching has been done AND the direction is "asc",
-      set the direction to "desc" and run the while loop again. */
-      if (switchcount == 0 && dir == "asc") {
-      dir = "desc";
-      switching = true;
-      }
-      }
-      }
-      }
-      </script>
-   </body>
+
+            }
+
+            if (tableId != "dwbTable") {
+                result += "<th>" + "Select how many" + "</th>";
+            }
+
+            for (var i = 1; i < myArray.length; i++) {
+                sku = myArray[i][myArray[i].length - 2];
+                result += '<tr id="' + sku + '">';
+                for (var j = 0; j < myArray[i].length; j++) {
+                    if (hiddenCols.includes(j)) {
+                        result += "<td style='display:none;'>" + myArray[i][j] + "</td>";
+                        //               console.log("hiddenCol");
+                    } else {
+                        result += "<td>" + myArray[i][j] + "</td>";
+                    }
+                }
+
+                if (tableId != "dwbTable") {
+                    result += "<td>" + createDropdown(myArray[i][myArray[i].length - 1], sku) + "</td>";
+                }
+
+                result += "</tr>";
+            }
+            result += "</table>";
+            return result;
+        }
+
+        function sortTable(n, tableId) {
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById(tableId);
+            console.log(table);
+            switching = true;
+            // Set the sorting direction to ascending:
+            dir = "asc";
+            /* Make a loop that will continue until
+            no switching has been done: */
+            while (switching) {
+                // Start by saying: no switching is done:
+                switching = false;
+                rows = table.rows;
+                /* Loop through all table rows (except the
+                first, which contains table headers): */
+                for (i = 1; i < (rows.length - 1); i++) {
+                    // Start by saying there should be no switching:
+                    shouldSwitch = false;
+                    /* Get the two elements you want to compare,
+                    one from current row and one from the next: */
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+                    /* Check if the two rows should switch place,
+                    based on the direction, asc or desc: */
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            // If so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            // If so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    /* If a switch has been marked, make the switch
+                    and mark that a switch has been done: */
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    // Each time a switch is done, increase this count by 1:
+                    switchcount++;
+                } else {
+                    /* If no switching has been done AND the direction is "asc",
+                    set the direction to "desc" and run the while loop again. */
+                    if (switchcount == 0 && dir == "asc") {
+                        dir = "desc";
+                        switching = true;
+                    }
+                }
+            }
+        }
+
+        function financial(x) {
+            return Number.parseFloat(x).toFixed(2);
+        }
+
+        //         function highlightSelected(obj) {
+        //         if (obj.options.selectedIndex > 0) {
+        //            document.getElementById(obj.name).style.backgroundColor = "#0008ff40";
+        //         }
+        //         else {
+        //            document.getElementById(obj.name).style.backgroundColor = "white";
+        //         }
+        //         }
+
+        function highlightSelected(obj) {
+            if (obj.options.selectedIndex > 0) {
+                obj.parentElement.parentElement.style.backgroundColor = "#0008ff40";
+            } else {
+                obj.parentElement.parentElement.style.backgroundColor = "white";
+            }
+        }
+
+        // updates order tab
+        function updateOrder() {
+            var parent = $('.screenQty');
+            var popupOrder = '<table border=1> <tr> <th> Item SKU </th> <th> Qty </th> <th> Price </th> <th> Total Price </th> </tr>';
+            var orderTotal = 0;
+            for (var i = 0; i < parent.length; i++) {
+                sku = parent[i].name;
+                opt = parent[i].options[parent[i].options.selectedIndex];
+                if (opt.value != 0) {
+                    p = getDataBySKU(sku, ['Price'])[0].replace("$","");
+                    qty = opt.value;
+                    total = qty * p;
+                    orderTotal += total;
+                    popupOrder += '<tr>' + '<td>' + sku + '</td>' + '<td>' + qty.toString() + '</td>' + '<td>' + '$' + financial(p).toString() + '</td>' + '<td>' + '$' + financial(total).toString() + '</td>' + '</tr>';
+                    
+                }
+            }
+            popupOrder += '<tr> <th></th> <th></th> <th>Order Total</th> ' + '<th>' + '$' + financial(orderTotal).toString() + '</th> </tr> </table>';
+            document.getElementById('orderData').innerHTML = popupOrder;
+            window.emailBody = popupOrder;
+        }
+
+        // When the user clicks View Order, open the popup
+        function submitOrder() {
+            toggleOrder();
+            updateOrder();
+        }
+
+        function toggleOrder() {
+            var x = document.getElementById("orderConfirm");
+            if (x.style.display === "none") {
+                x.style.display = "block";
+            } else {
+                x.style.display = "none";
+            }
+        }
+
+        // get data for item by unique SKU
+        function getDataBySKU(sku, dataWanted) {
+            var skuIdx = values[0].indexOf('SKU');
+            var data = [];
+            for (var m = 1; m < values.length; m++) {
+                rowData = values[m];
+                if (rowData[skuIdx] == sku) {
+                    for (var k = 0; k < dataWanted.length; k++) {
+                        idx = values[0].indexOf(dataWanted[k]);
+                        data.push(rowData[idx]);
+                    }
+                    break;
+                }
+            }
+            return data;
+        }
+    </script>
+</head>
+
+<body>
+    <br>
+    <br>
+    <div class='container-fluid' id='Title'>
+        <div class="row">
+            <div class="col-8 mx-auto">
+                <h1>UCSF Xtal Facility Screen Order</h1>
+                <br>
+                <p align="center"> Author: Loren Jiang
+                    <br> <b>Email xray@msg.ucsf.edu to report a bug OR request a screen not in stock</b>
+                    <br><i>(such requests will 
+              usually be fulfilled in 5-7 business days, depending on shipping times)</i>
+                </p>
+                <p align="center">
+                    Click on the "DWB" tab below to see which screens we have in deep well block format. If you would like to order a screen not listed in either DWB or hanging/sitting format please email address above.
+                </p>
+                <br>
+                <p align="center">
+                    <?var url = getScriptUrl();?><a target="_blank" href='<?=url?>?page=select_screen'> Tips on picking which screen(s)</a>
+                </p>
+            </div>
+        </div>
+    </div>
+    <form id="myform" onsubmit="window.location.reload()">
+        <div id='userInfo' class='container-fluid'>
+            <div class="row">
+                <div class="col-8 mx-auto">
+                    <p>
+                        Name:
+                        <input name="userName" type="text"/>
+                    </p>
+                    <p>
+                        Email:
+                        <input name="Email" type="text" id='email'>
+                    </p>
+                    <p>
+                        Lab Group:
+                        <!--<input name="Lab" type='text' list="groups">
+                        <datalist id="groups"></datalist>-->
+                        <select name="Lab" id="groups">
+                        </select>
+                    </p>
+                    <p id="p_other_lab">
+                    </p>
+                </div>
+            </div>
+        </div>
+        <br>
+        <br>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+        <ul class="nav nav-pills mb-3 justify-content-center" id="pills-tab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="pills-hdp-tab" data-toggle="pill" href="#pills-hdp" role="tab" aria-controls="pills-hdp" aria-selected="true">Hanging Drop</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="pills-sdp-tab" data-toggle="pill" href="#pills-sdp" role="tab" aria-controls="pills-sdp" aria-selected="false">Sitting Drop</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="pills-dwb-tab" data-toggle="pill" href="#pills-dwb" role="tab" aria-controls="pills-dwb" aria-selected="false">DWB</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="pills-order-tab" data-toggle="pill" href="#pills-order" role="tab" aria-controls="pills-order" aria-selected="false" onclick="updateOrder()">Checkout</a>
+            </li>
+        </ul>
+        <div class="tab-content" id="pills-tabContent">
+            <div class="tab-pane fade show active" id="pills-hdp" role="tabpanel" aria-labelledby="pills-hdp-tab">
+                <div class='container-fluid' id='hangingContainer'>
+                    <div class='row'>
+                    <div class='col-10 mx-auto'>
+                        <h2>Hanging Drop Screens</h2>
+                        <div id='hanging'>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="pills-sdp" role="tabpanel" aria-labelledby="pills-sdp-tab">
+                <div class='container-fluid' id='sittingContainer'>
+                    <div class='row'>
+                    <div class='col-10 mx-auto'>
+                        <h2>Sitting Drop Screens</h2>
+                        <div id='sitting'>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="pills-dwb" role="tabpanel" aria-labelledby="pills-dwb-tab">
+                <div class='container-fluid' id='dwbContainer'>
+                <div class='row'>
+                    <div class='col-10 mx-auto'>
+                        <h2>Deep Well Blocks</h2>
+                        <div id='dwb'>
+                        </div>
+                    </div>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="pills-order" role="tabpanel" aria-labelledby="pills-order-tab">
+                <div class='container-fluid' id='orderContainer'>
+                    <!--<button id='viewOrder' type="button" >Checkout</button>
+            <div style='display:none' id="orderConfirm" align="center">-->
+                    <div id="orderConfirm" align="center">
+                        <br><b>Order confirmation </b>
+                        <div id="orderData"> </div>
+                        <br>
+                        <textarea rows="4" cols="50" name="comment" form="myform" placeholder='Comments or questions?'></textarea>
+                        <br>
+                        <input type="button" value="Submit order" id="btnsubmit">
+                        <!--<input type="button" value="Update order" onclick="updateOrder()">-->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <p style="margin-bottom: 100px"> </p>
+    </form>
+    <?!= getContent("myscript.js") ?>
+        <?!= getContent("mycss") ?>
+            <script>
+                $(document).ready(function() {
+
+                    //            document.getElementById('viewOrder').onclick = function() {
+                    //            this.scrollIntoView();
+                    //            submitOrder();
+                    //            };
+                    //            document.getElementById("goToCheckout").addEventListener("click", function scrollTo() {
+                    //            var elmnt = document.getElementById("viewOrder");
+                    //            elmnt.scrollIntoView();
+                    //            }, false);
+                    //            
+                    //            document.getElementById("goHanging").addEventListener("click", function scrollTo() {
+                    //            var elmnt = document.getElementById("hangingContainer");
+                    //            elmnt.scrollIntoView();
+                    //            }, false);
+                    //            
+                    //            document.getElementById("goSitting").addEventListener("click", function scrollTo() {
+                    //            var elmnt = document.getElementById("sittingContainer");
+                    //            elmnt.scrollIntoView();
+                    //            }, false);
+                });
+            </script>
+
+            <script>
+                $(document).ready(function() {
+                    var options = '<option value=""> Choose... </option>';
+                    for (var i = 1; i < groupArr.length; i++) {
+                        options += '<option value="' + groupArr[i] + '">' + groupArr[i] +  '</option>';
+                    }
+                    options += '<option value="other"> Other </option>';
+                    document.getElementById('groups').innerHTML = options;
+                    
+                    //if 'other' is selected, input box is made for user input
+                    $("#groups").change(function() {
+                        var option_select = $("#groups option:selected");
+                        if (option_select.val() == "other") {
+                            var other_lab_input = "If other, please specify: <input class='required' name='other_lab' type='text' id ='other_lab_input'>";
+                            $("#p_other_lab").html(other_lab_input);
+//                            alert(option_select.val());
+                        } 
+                        else {
+                           $("#p_other_lab").html("");
+                        }
+                        
+                    });
+   
+                    //read and organize data from gsheet
+                    var header = values[0];
+                    var dateIdx = header.indexOf('Date dispensed');
+                    var plateFormatIdx = header.indexOf('Plate format');
+                    var URLIdx = header.indexOf('URL');
+                    var priceIdx = header.indexOf('Price');
+                    var itemIdx = header.indexOf('Item');
+                    var hangingDrop = [header];
+                    var sittingDrop = [header];
+                    var dwb = [header];
+
+                    for (var k = 1; k < values.length; k++) {
+                        row = values[k];
+                        row[itemIdx] = '<b>' + row[itemIdx] + '</b>';
+                        row[priceIdx] = '$' + row[priceIdx].toFixed(2);
+                        row[URLIdx] = '<a target="_blank" href="' + row[URLIdx] + '">' + "Product link" + '</a>';
+                        row[dateIdx] = cleanDate(values[k][dateIdx]); //takes substring of date string
+                        if (row[plateFormatIdx] == 'Hanging') {
+                            hangingDrop.push(row);
+                        }
+                        if (row[plateFormatIdx] == 'Sitting') {
+                            sittingDrop.push(row);
+                        }
+                        if (row[plateFormatIdx] == 'DWB') {
+                            dwb.push(row);
+                        }
+                    }
+
+                    //             0: "Item"
+                    //             1: "Category"
+                    //             2: "SKU"
+                    //             3: "Vendor"
+                    //             4: "Plate type"
+                    //             5: "Plate format"
+                    //             6: "Volume"
+                    //             7: "Description"
+                    //             8: "Price (USD)"
+                    //             9: "URL"
+                    //             10: "Date dispensed"
+                    //             11: "Lot code"
+                    //             12: "In inventory?"
+                    //             13: "Amt in stock"
+                    //             14: "Restock?"
+                    //             15: "Days old"
+                    //             16: "Percent off"
+                    //             17: "Price"
+
+                    var sittingTable = makeTableHTML(
+                        sittingDrop.map(function(v) {
+                            return [v[0], v[3], v[4], v[7], v[17], v[9], v[10], v[2], v[13]]
+                        }), [7],
+                        "sittingTable"); //this is bad lol
+
+                    var hangingTable = makeTableHTML(
+                        hangingDrop.map(function(v) {
+                            return [v[0], v[3], v[4], v[7], v[17], v[9], v[10], v[2], v[13]]
+                        }), [7],
+                        "hangingTable");
+//                    console.log(dwb.map(function(v) {
+//                        return [v[0], v[7], v[2], v[13]]
+//                    }));
+                    var dwbTable = makeTableHTML(dwb.map(function(v) {
+                        return [v[0], v[3], v[7], v[2], v[13]]
+                    }), [2, 3], "dwbTable");
+
+                    //add table to appropriate div
+                    document.getElementById('hanging').innerHTML = hangingTable;
+                    document.getElementById('sitting').innerHTML = sittingTable;
+                    document.getElementById('dwb').innerHTML = dwbTable;
+
+                    $('#myform').validate({ // initialize the plugin to validate form
+                        rules: {
+                            userName: {
+                                required: true,
+                                minlength: 1
+                            },
+                            Email: {
+                                required: true,
+                                email: true
+                            },
+                            Lab: {
+                                required: true,
+                                minlength: 1
+                            }
+                        }
+
+                    });
+
+                    $("#btnsubmit").on('click', function(e) {
+                        var isvalid = $("#myform").valid() && atLeastOne();
+                        e.preventDefault();
+                        if (isvalid) {
+                            $(".screenQty").each(function() {
+                                this.parentElement.parentElement.style.backgroundColor = "white";
+                            });
+                            alert('Thank you for your order. Typical turnaround time is 1-2 business days.');
+                            google.script.run.processForm($("#myform").serializeArray(), window.emailBody);
+                            $('#myform').each(function() {
+                                this.reset()
+                            });;
+                        }
+                        document.documentElement.scrollTop = 0; //scroll to top so user can see error
+                    });
+
+                });
+            </script>
+
+</body>
+
 </html>

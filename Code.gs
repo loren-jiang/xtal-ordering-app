@@ -139,12 +139,20 @@ function processForm(formArr, emailBody) {
   var userName = formArr.filter(function(x) {return x.name=='userName'})[0].value;
   var Email = formArr.filter(function(x){return x.name=='Email'})[0].value;
   var Lab = formArr.filter(function(x){return x.name=='Lab'})[0].value;
+  if (Lab == "other") {
+    Logger.log("in if");
+    Lab = formArr.filter(function(x){return x.name=='other_lab'})[0].value;  
+    Logger.log(Lab);
+  }
+  
+  
   function isScreen(thing) {
     return thing.name != 'Lab' && 
-      thing.name != 'userName' && 
-        thing.name != 'Email' && 
-          thing.value != 0 &&
-            thing.name != 'comment';
+      thing.name != 'other_lab' &&
+        thing.name != 'userName' && 
+          thing.name != 'Email' && 
+            thing.value != 0 &&
+              thing.name != 'comment';
   }
   
   var ss = SpreadsheetApp.getActive(); //get active spreadsheet
