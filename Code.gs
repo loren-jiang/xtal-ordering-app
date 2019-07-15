@@ -76,7 +76,7 @@ function sendPickUpEmail() {
   var subject = 'Screen order ready for pick up | ' + date;
   
   for (var i in dictToBeEmailed) {
-    var msg = 'Your orders are ready for pick up in S127: \n \n';
+    var msg = 'Your orders are ready for pick up in S127. They will be on the left counter when you enter the facility. \n \n';
     if (dictToBeEmailed.hasOwnProperty(i)) {
       // do stuff
       var ordersLst = dictToBeEmailed[i];
@@ -88,7 +88,7 @@ function sendPickUpEmail() {
         sku = order[0];
         qty = order[1];
         msg += sku + ' | Qty ' + qty.toString() + '\n';
-        updateAmtBySKU(sku,qty);
+//        updateAmtBySKU(sku,qty);
       }
     }
     var greeting = 'Hi ' + name + ',\n';
@@ -140,9 +140,7 @@ function processForm(formArr, emailBody) {
   var Email = formArr.filter(function(x){return x.name=='Email'})[0].value;
   var Lab = formArr.filter(function(x){return x.name=='Lab'})[0].value;
   if (Lab == "other") {
-    Logger.log("in if");
     Lab = formArr.filter(function(x){return x.name=='other_lab'})[0].value;  
-    Logger.log(Lab);
   }
   
   
@@ -174,6 +172,7 @@ function processForm(formArr, emailBody) {
   for (var j=0; j <screenArr.length; j++) {
     sku = screenArr[j].name;
     qty=screenArr[j].value;
+    updateAmtBySKU(sku,qty); //update qty when initial order goes in, not when order is complete
     cost = getDataBySKU(sku, ['Price'])[0]; //get price from inventory sheet, search by sku
     rowData = [sku,qty,timestamp,date,cost,cost*qty,userName,Email,Lab,0,comments];
     for (var k=0;k<rowData.length;k++) {
@@ -186,9 +185,10 @@ function processForm(formArr, emailBody) {
   
   emailBody = '<p> Typical turnaround time is 1-2 business days. You will receive an email when order is ready. Please email xray@msg.ucsf.edu if urgent. </p></br> ' 
   +'<p> Please see order summary below: </p> </br>' + emailBody;
-  emailOrderConfirmation(Email +',' + 'xray@msg.ucsf.edu',subject,emailBody);
-  
+  emailOrderConfirmation(Email +',' + 'xray@msg.ucsf.edu',subject,emailBody);  
 }
+
+
 function setSheetValue(ssName, A1, value){
   var ss = SpreadsheetApp.getActive(); //get active spreadsheet
   var sh = ss.getSheetByName(ssName);
