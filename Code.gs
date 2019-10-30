@@ -175,6 +175,7 @@ function processForm(formArr, emailBody) {
     updateAmtBySKU(sku,qty); //update qty when initial order goes in, not when order is complete
     cost = getDataBySKU(sku, ['Price'])[0]; //get price from inventory sheet, search by sku
     rowData = [sku,qty,timestamp,date,cost,cost*qty,userName,Email,Lab,0,comments];
+    Logger.log(date,timestamp)
     for (var k=0;k<rowData.length;k++) {
        range.getCell(j+1,k+1).setValue(rowData[k]);
     }
@@ -204,9 +205,9 @@ function readSheetValue(sh,m){
   return [range, values];
 }
 
-function getContent(filename) {
-    return HtmlService.createTemplateFromFile(filename).getRawContent();
-}
+//function getContent(filename) {
+//    return HtmlService.createTemplateFromFile(filename).getRawContent();
+//}
 
 /**
  * Get the URL for the Google Apps Script running as a WebApp.
